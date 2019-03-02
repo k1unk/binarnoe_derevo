@@ -80,38 +80,55 @@ public class tree {
     }
 
     //удаление корня дерева
-    public final boolean Delete(int number) {
+    public boolean Delete(int number) {
         Node root = SearchRoot(number);
 
         if (root.left == null && root.right == null) {                  //нет "детей"
-            if (root.parent.right == root) {
-                root.parent.right = null;
+            if (root == MainParent) {
+                MainParent = null;
                 return true;
             } else {
-                root.parent.left = null;
-                return true;
+                if (root.parent.right == root) {
+                    root.parent.right = null;
+                    return true;
+                } else {
+                    root.parent.left = null;
+                    return true;
+                }
             }
         } else {
             if (root.left != null && root.right == null) {              //только левый ребенок
-                if (root.parent.right == root) {
-                    root.parent.right = root.left;
-                    root.left.parent = root.parent;
+                if (root == MainParent) {
+                    MainParent = root.left;
+                    root.left = null;
                     return true;
                 } else {
-                    root.parent.left = root.left;
-                    root.left.parent = root.parent;
-                    return true;
+                    if (root.parent.right == root) {
+                        root.parent.right = root.left;
+                        root.left.parent = root.parent;
+                        return true;
+                    } else {
+                        root.parent.left = root.left;
+                        root.left.parent = root.parent;
+                        return true;
+                    }
                 }
             } else {
                 if (root.left == null && root.right != null) {          //только правый ребенок
-                    if (root.parent.right == root) {
-                        root.parent.right = root.right;
-                        root.right.parent = root.parent;
+                    if (root == MainParent) {
+                        MainParent = root.right;
+                        root.right = null;
                         return true;
                     } else {
-                        root.parent.left = root.right;
-                        root.right.parent = root.parent;
-                        return true;
+                        if (root.parent.right == root) {
+                            root.parent.right = root.right;
+                            root.right.parent = root.parent;
+                            return true;
+                        } else {
+                            root.parent.left = root.right;
+                            root.right.parent = root.parent;
+                            return true;
+                        }
                     }
                 } else {                                                //оба ребенка
                     if (root.number - root.left.number > root.right.number - root.number) {
@@ -121,6 +138,8 @@ public class tree {
                         }
                         rootInSearchingNull.left = root.left;
                         root.left.parent = rootInSearchingNull;
+                        MainParent = SearchRoot(root.right.number);
+                        MainParent.parent = null;
                         return true;
                     } else {
                         Node rootInSearchingNull = root.left;
@@ -129,6 +148,8 @@ public class tree {
                         }
                         rootInSearchingNull.right = root.right;
                         root.right.parent = rootInSearchingNull;
+                        MainParent = SearchRoot(root.left.number);
+                        MainParent.parent = null;
                         return true;
                     }
                 }
@@ -138,27 +159,30 @@ public class tree {
 
     //выводит строку вида "Номер данного элемента, номер элемента родителя, номер левого ребенка, номер правого ребенка"
     public String toString(int number) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Number: ");
-        sb.append(number);
-        sb.append(", parent: ");
-        if (SearchParent(number) != null) {
-            sb.append(SearchParent(number).number);
-        } else {
-            sb.append("null");
-        }
-        sb.append(", left: ");
-        if (SearchLeft(number) != null) {
-            sb.append(SearchLeft(number).number);
-        } else {
-            sb.append("null");
-        }
-        sb.append(", right: ");
-        if (SearchLeft(number) != null) {
-            sb.append(SearchRight(number).number);
-        } else {
-            sb.append("null");
-        }
-        return sb.toString();
+        if (SearchRoot(number) != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Number: ");
+            sb.append(number);
+            sb.append(", parent: ");
+            if (SearchParent(number) != null) {
+                sb.append(SearchParent(number).number);
+            } else {
+                sb.append("null");
+            }
+            sb.append(", left: ");
+            if (SearchLeft(number) != null) {
+                sb.append(SearchLeft(number).number);
+            } else {
+                sb.append("null");
+            }
+            sb.append(", right: ");
+            if (SearchRight(number) != null) {
+                sb.append(SearchRight(number).number);
+            } else {
+                sb.append("null");
+            }
+            return sb.toString();
+        } else throw new IllegalArgumentException("Данного числа нет в дереве");
     }
+
 }
