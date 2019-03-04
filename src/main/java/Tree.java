@@ -1,4 +1,4 @@
-public class tree {
+public class Tree {
 
     private class Node {
         private Node parent;
@@ -14,15 +14,15 @@ public class tree {
         }
     }
 
-    private Node MainParent;
+    private Node mainParent;
 
     //добавление первого элемента в дерево
     public Node addInTree(int number) {
-        if (MainParent == null) {
-            MainParent = new Node(number, null, null, null);
-            return MainParent;
+        if (mainParent == null) {
+            mainParent = new Node(number, null, null, null);
+            return mainParent;
         } else {
-            return addOthers(number, MainParent);
+            return addOthers(number, mainParent);
         }
     }
 
@@ -47,9 +47,9 @@ public class tree {
     }
 
     // поиск элемента в дереве
-    public Node SearchRoot(int number) {
-        int numberOfRoot = MainParent.number;
-        Node root = MainParent;
+    public Node searchRoot(int number) {
+        int numberOfRoot = mainParent.number;
+        Node root = mainParent;
 
         while (number != numberOfRoot) {
             if (number > numberOfRoot) {
@@ -63,71 +63,61 @@ public class tree {
             }
         }
         return root;
-
     }
 
     //поиск всех соседних корней данного элемента
-    public Node SearchParent(int number) {
-        return SearchRoot(number).parent;
+    public Node searchParent(int number) {
+        return searchRoot(number).parent;
     }
 
-    public Node SearchLeft(int number) {
-        return SearchRoot(number).left;
+    public Node searchLeft(int number) {
+        return searchRoot(number).left;
     }
 
-    public Node SearchRight(int number) {
-        return SearchRoot(number).right;
+    public Node searchRight(int number) {
+        return searchRoot(number).right;
     }
 
     //удаление корня дерева
-    public boolean Delete(int number) {
-        Node root = SearchRoot(number);
+    public void delete(int number) {
+        Node root = searchRoot(number);
 
         if (root.left == null && root.right == null) {                  //нет "детей"
-            if (root == MainParent) {
-                MainParent = null;
-                return true;
+            if (root == mainParent) {
+                mainParent = null;
             } else {
                 if (root.parent.right == root) {
                     root.parent.right = null;
-                    return true;
                 } else {
                     root.parent.left = null;
-                    return true;
                 }
             }
         } else {
             if (root.left != null && root.right == null) {              //только левый ребенок
-                if (root == MainParent) {
-                    MainParent = root.left;
+                if (root == mainParent) {
+                    mainParent = root.left;
                     root.left = null;
-                    return true;
                 } else {
                     if (root.parent.right == root) {
                         root.parent.right = root.left;
                         root.left.parent = root.parent;
-                        return true;
                     } else {
                         root.parent.left = root.left;
                         root.left.parent = root.parent;
-                        return true;
                     }
                 }
             } else {
                 if (root.left == null && root.right != null) {          //только правый ребенок
-                    if (root == MainParent) {
-                        MainParent = root.right;
+                    if (root == mainParent) {
+                        mainParent = root.right;
                         root.right = null;
-                        return true;
                     } else {
                         if (root.parent.right == root) {
                             root.parent.right = root.right;
                             root.right.parent = root.parent;
-                            return true;
                         } else {
                             root.parent.left = root.right;
                             root.right.parent = root.parent;
-                            return true;
                         }
                     }
                 } else {                                                //оба ребенка
@@ -138,9 +128,8 @@ public class tree {
                         }
                         rootInSearchingNull.left = root.left;
                         root.left.parent = rootInSearchingNull;
-                        MainParent = SearchRoot(root.right.number);
-                        MainParent.parent = null;
-                        return true;
+                        mainParent = searchRoot(root.right.number);
+                        mainParent.parent = null;
                     } else {
                         Node rootInSearchingNull = root.left;
                         while (rootInSearchingNull.right != null) {
@@ -148,36 +137,71 @@ public class tree {
                         }
                         rootInSearchingNull.right = root.right;
                         root.right.parent = rootInSearchingNull;
-                        MainParent = SearchRoot(root.left.number);
-                        MainParent.parent = null;
-                        return true;
+                        mainParent = searchRoot(root.left.number);
+                        mainParent.parent = null;
                     }
                 }
             }
         }
     }
 
+    public void deleteRecurse(int number) {
+        deleteRecurse2(number, mainParent);
+    }
+
+    public Node deleteRecurse2(int number, Node root) {
+        if (number < root.number) {
+            root.left = deleteRecurse2(number, root.left);
+        } else {
+            if (number > root.number) {
+                root.right = deleteRecurse2(number, root.right);
+            } else {
+                if (root.left != null && root.right != null) {
+                    root.number = minimum(root.right).number;
+                    root.right = deleteRecurse2(root.number, root.right);
+                } else {
+                    if (root.left != null) {
+                        Node x = root.parent;
+                        root = root.left;
+                        root.parent = x;
+                    } else {
+                        Node x = root.parent;
+                        root = root.right;
+                        root.parent = x;
+                    }
+                }
+            }
+        }
+        return root;
+    }
+
+
+    public Node minimum(Node root) {
+        if (root.left == null) return root;
+        else return minimum(root.left);
+    }
+
     //выводит строку вида "Номер данного элемента, номер элемента родителя, номер левого ребенка, номер правого ребенка"
     public String toString(int number) {
-        if (SearchRoot(number) != null) {
+        if (searchRoot(number) != null) {
             StringBuilder sb = new StringBuilder();
             sb.append("Number: ");
             sb.append(number);
             sb.append(", parent: ");
-            if (SearchParent(number) != null) {
-                sb.append(SearchParent(number).number);
+            if (searchParent(number) != null) {
+                sb.append(searchParent(number).number);
             } else {
                 sb.append("null");
             }
             sb.append(", left: ");
-            if (SearchLeft(number) != null) {
-                sb.append(SearchLeft(number).number);
+            if (searchLeft(number) != null) {
+                sb.append(searchLeft(number).number);
             } else {
                 sb.append("null");
             }
             sb.append(", right: ");
-            if (SearchRight(number) != null) {
-                sb.append(SearchRight(number).number);
+            if (searchRight(number) != null) {
+                sb.append(searchRight(number).number);
             } else {
                 sb.append("null");
             }
